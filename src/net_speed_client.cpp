@@ -45,6 +45,7 @@ main(int argc, char *argv[])
         perror("connecting stream socket");
         exit(1);
     }
+    // send 1GB of data to the server
     for (int i = 0; i < 1024* 1024; ++i) {
         if (write(sock, data1k, 1024) < 0) {
             perror("writing on stream socket");
