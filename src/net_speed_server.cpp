@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define TRUE 1
-#define BILLION  1000000000L;
+const uint64_t k_report_step = 50 * 1024 * 1024; // report speed every 50MB;
+const uint64_t k_billion = 1000000000L;
 
 int report_stats(uint64_t bytes, struct timespec& start) {
     struct timespec stop;
@@ -19,7 +19,7 @@ int report_stats(uint64_t bytes, struct timespec& start) {
     }
     auto sec = ( stop.tv_sec - start.tv_sec )
          + (double)( stop.tv_nsec - start.tv_nsec )
-           / (double)BILLION;
+           / (double)k_billion;
 
     printf("transfer speed: %.2f MB/s\n", (bytes/1024.0/1024.0) / sec);
     start = stop;
@@ -64,8 +64,7 @@ int main()
         } else {
             struct timespec start, start_step;
             uint64_t bytes = 0;
-            const uint64_t report_step = 1024 * 1024; // report speed every 1MB;
-            uint64_t next_report_bytes = report_step;
+            uint64_t next_report_bytes = k_report_step;
             uint64_t last_report_bytes = 0;
             if (clock_gettime(CLOCK_MONOTONIC, &start) != 0) {
                 perror("clock_gettime");
@@ -79,7 +78,7 @@ int main()
                     if (bytes >= next_report_bytes) {
                         report_stats(bytes - last_report_bytes, start_step);
                         last_report_bytes = bytes;
-                        next_report_bytes += report_step;
+                        next_report_bytes += k_report_step;
                     }
                     // printf("-->%s\n", buf);
                 } else if (rval == 0) {
@@ -93,5 +92,5 @@ int main()
             }
         }
         close(msgsock);
-    } while (TRUE);
+    } while (true);
 }
