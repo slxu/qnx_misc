@@ -87,7 +87,7 @@ int main()
                     break;
                 } else {
                     perror("Reading stream message");
-                    break;
+                    return EXIT_FAILURE;
                 }
             }
         }
