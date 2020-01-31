@@ -9,15 +9,12 @@
 
 #define COMPLETED "Completed"
 
-/*
- * This  program creates a  pair of connected sockets,
- * then forks and communicates over them.  This is very
- * similar to communication with pipes, however, socketpairs
- * are  two-way  communications  objects.  Therefore I can
- * send messages in both directions.
- */
+// send 1GB of data to the server
+#define DATA_BYTES (1024*1024*1024)
+// write by this block size
+#define BLOCK_BYTES (1024*1)
 
-const char * data1k = "This program creates a pair of connected sockets, then forks and communicates over them. This is very similar to communication with pipes, however, socketpairs are two-way  communications  objects. Therefore I can send messages in both directions. This program creates a pair of connected sockets, then forks and communicates over them.  This is very similar to communication with pipes, however, socketpairs are  two-way  communications  objects. Therefore I can send messages in both directions. This program creates a pair of connected sockets, then forks and communicates over them.  This is very similar to communication with pipes, however, socketpairs are  two-way  communications  objects. Therefore I can send messages in both directions. This program creates a pair of connected sockets, then forks and communicates over them.  This is very similar to communication with pipes, however, socketpairs are  two-way communications objects. Therefore I can send messages in both directions. This program creates a pair. ";
+const char data[BLOCK_BYTES] = "NVIDIA DRIVE AGX self-driving compute platforms are built on NVIDIA Xavier™, the world’s first processor designed for autonomous driving. The auto-grade Xavier system-on-a-chip (SoC) is in production today and architected for safety, incorporating six different types of processors to run redundant and diverse algorithms for AI, sensor processing, mapping and driving. Leveraging Xavier, DRIVE AGX platforms process data from camera, lidar, radar, and ultrasonic sensors to understand the complete 360-degree environment in real-time, localize itself to a map, and plan a safe path forward.";
 
 main(int argc, char *argv[])
 {
@@ -45,9 +42,12 @@ main(int argc, char *argv[])
         perror("connecting stream socket");
         exit(1);
     }
-    // send 1GB of data to the server
-    for (int i = 0; i < 1024* 1024; ++i) {
-        if (write(sock, data1k, 1024) < 0) {
+    size_t num_blks = DATA_BYTES / BLOCK_BYTES;
+    if (num_blks == 0) {
+        num_blks = 1;
+    }
+    for (int i = 0; i < num_blks; ++i) {
+        if (write(sock, data, BLOCK_BYTES) < 0) {
             perror("writing on stream socket");
             break;
         }
